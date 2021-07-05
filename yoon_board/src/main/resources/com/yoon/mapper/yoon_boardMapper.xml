@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.yoon.mapper.yoon_boardMapper"> <!-- 매퍼 패키지의 인터페이스 경로와 인터페이스명. -->
+  
+  
+  
+  <!-- 게시글등록 메서드 -->
+  <insert id="enroll">
+   
+   insert into yoon_board(title, content, writer)values(#{title}, #{content}, #{writer})
+  
+  </insert>
+  
+  
+  
+  
+  
+  <!-- 게시글목록 메서드 페이징 -->
+  <select id = "getlistPaging" resultType="com.yoon.model.yoon_boardVO">
+  
+   <![CDATA[
+        
+        select bno, title, content, writer, regdate, updatedate from(
+        
+                select /*+INDEX_DESC(yoon_board pk_board) */ rownum  as rn, bno, title, content, writer, regdate, updatedate
+                  
+                from yoon_board where rownum <= #{pageNum} * #{amount} 
+    ]]>            
+                <if test="keyword != null">
+                    and title like '%'||#{keyword}||'%' 
+                </if>
+    
+    <![CDATA[
+                    
+                )
+                    
+        where rn > (#{pageNum} -1) * #{amount}
+    
+    ]]>
+  
+  
+  </select>
+  
+  
+  
+  <!-- 페이징을 사용하지않은 게시글목록 메서드 -->
+  <!-- <select id="getlist" resultType="com.yoon.model.yoon_boardVO">
+  
+  select * from yoon_board
+  
+  </select>
+   -->
+   
+   
+   
+   
+   
+  <!-- 게시글내용 메서드 -->
+  <select id="getcontent" resultType="com.yoon.model.yoon_boardVO">
+  	
+  	select * from yoon_board where bno = #{bno}
+  	
+  </select>
+  
+  
+  
+  
+  
+  <!-- 게시글내용 수정 -->
+  <update id="modify">
+  	update yoon_board set title= #{title}, content= #{content}, updateDate = sysdate where bno =#{bno}
+  </update>
+  
+  
+  
+  
+  
+  <!-- 게시글내용 삭제 -->
+  <delete id ="delete">
+  	
+  	delete from yoon_board where bno= #{bno}
+  
+  </delete>
+  
+  
+  
+  
+  <!-- 게시글의 총 개수 -->
+  
+  <select id="getTotal" resultType="int">
+  
+  
+  select count(*) from yoon_board
+  
+  <if test="keyword != null">
+  
+  	where title like '%'||#{keyword}||'%'
+  </if>
+  
+  </select>
+  
+  
+  
+  </mapper>
